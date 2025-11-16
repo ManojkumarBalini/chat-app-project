@@ -1,12 +1,24 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { mockSessions, mockConversations, tableTemplates } = require('./mockData');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from React build in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  
+  // Serve React app for all other routes
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+  });
+}
 
 let sessionCounter = 5;
 
@@ -45,7 +57,8 @@ app.post('/api/chat/:id', (req, res) => {
   
   mockConversations[sessionId].push({
     type: 'user',
-    content: userMessage
+    content: userMessage,
+    timestamp: new Date().toISOString()
   });
   
   const randomTemplate = tableTemplates[Math.floor(Math.random() * tableTemplates.length)];
@@ -53,7 +66,8 @@ app.post('/api/chat/:id', (req, res) => {
   const assistantResponse = {
     type: 'assistant',
     content: `I understand you're asking about "${userMessage}". Here's the information you requested:`,
-    tableData: randomTemplate
+    tableData: randomTemplate,
+    timestamp: new Date().toISOString()
   };
   
   mockConversations[sessionId].push(assistantResponse);
@@ -67,5 +81,5 @@ app.post('/api/chat/:id', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
