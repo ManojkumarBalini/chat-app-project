@@ -7,6 +7,13 @@ const Sidebar = ({ isOpen, onToggle, onClose, isDarkMode, isMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Get API base URL based on environment
+  const getApiBaseUrl = () => {
+    return process.env.NODE_ENV === 'production' 
+      ? 'https://chat-app-project-wi52.onrender.com'
+      : 'http://localhost:5000';
+  };
+
   useEffect(() => {
     fetchSessions();
   }, []);
@@ -14,7 +21,7 @@ const Sidebar = ({ isOpen, onToggle, onClose, isDarkMode, isMobile }) => {
   const fetchSessions = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:5000/api/sessions');
+      const response = await fetch(`${getApiBaseUrl()}/api/sessions`);
       const data = await response.json();
       setSessions(data);
     } catch (error) {
@@ -26,7 +33,7 @@ const Sidebar = ({ isOpen, onToggle, onClose, isDarkMode, isMobile }) => {
 
   const handleNewChat = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/new-chat');
+      const response = await fetch(`${getApiBaseUrl()}/api/new-chat`);
       const data = await response.json();
       navigate(`/chat/${data.sessionId}`);
       fetchSessions();
