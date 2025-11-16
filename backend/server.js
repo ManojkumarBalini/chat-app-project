@@ -6,8 +6,15 @@ const { mockSessions, mockConversations, tableTemplates } = require('./mockData'
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// CORS configuration for production
+app.use(cors({
+  origin: [
+    'https://chat-app-project-1-97ff.onrender.com',
+    'http://localhost:3000'
+  ],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Serve static files from React build in production
@@ -82,4 +89,5 @@ app.post('/api/chat/:id', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
