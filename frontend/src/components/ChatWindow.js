@@ -11,6 +11,13 @@ const ChatWindow = ({ isDarkMode, isMobile, isSidebarOpen }) => {
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
 
+  // Get API base URL based on environment
+  const getApiBaseUrl = () => {
+    return process.env.NODE_ENV === 'production' 
+      ? 'https://chat-app-project-wi52.onrender.com'
+      : 'http://localhost:5000';
+  };
+
   useEffect(() => {
     if (sessionId) {
       fetchSessionHistory();
@@ -23,7 +30,7 @@ const ChatWindow = ({ isDarkMode, isMobile, isSidebarOpen }) => {
 
   const fetchSessionHistory = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/session/${sessionId}`);
+      const response = await fetch(`${getApiBaseUrl()}/api/session/${sessionId}`);
       const data = await response.json();
       setMessages(data);
     } catch (error) {
@@ -50,7 +57,7 @@ const ChatWindow = ({ isDarkMode, isMobile, isSidebarOpen }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/chat/${sessionId}`, {
+      const response = await fetch(`${getApiBaseUrl()}/api/chat/${sessionId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,7 +136,8 @@ const ChatWindow = ({ isDarkMode, isMobile, isSidebarOpen }) => {
                 {[
                   "Show me project metrics",
                   "What are the system requirements?",
-                  "Display team performance data"
+                  "Display team performance data",
+                  "List available features"
                 ].map((suggestion, index) => (
                   <div
                     key={index}
