@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const { mockSessions, mockConversations, tableTemplates } = require('./mockData');
 
 const app = express();
@@ -17,15 +16,8 @@ app.use(cors({
 
 app.use(express.json());
 
-// Serve static files from React build in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/build')));
-  
-  // Serve React app for all other routes
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
-  });
-}
+// Remove the frontend static serving since we're deploying separately
+// Only serve API routes
 
 let sessionCounter = 5;
 
@@ -85,6 +77,24 @@ app.post('/api/chat/:id', (req, res) => {
   }
   
   res.json(assistantResponse);
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Server is running' });
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Chat App Backend API', 
+    endpoints: {
+      sessions: '/api/sessions',
+      newChat: '/api/new-chat',
+      session: '/api/session/:id',
+      chat: '/api/chat/:id'
+    }
+  });
 });
 
 app.listen(PORT, () => {
